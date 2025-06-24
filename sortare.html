@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulare Forță Centrifugă și Eficiență Sortare</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    #controls {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    #rpm {
+      width: 300px;
+    }
+    
+    /* Stiluri pentru secțiunea de materiale */
+    .materials-section {
+      margin: 30px auto;
+      max-width: 1000px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    
+    .materials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .material-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    
+    .material-item input[type="checkbox"] {
+      transform: scale(1.2);
+    }
+    
+    .add-material-form {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f8ff;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .form-row input {
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    .form-row button {
+      padding: 6px 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .form-row button:hover {
+      background: #0056b3;
+    }
+    
+    .color-preview {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      display: inline-block;
+    }
+    
+    canvas#simCanvas {
+      background: white;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 100%;
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+    .box {
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      border-radius: 3px;
+      border: 1px solid #aaa;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #777;
+    }
+    .chart-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 40px;
+      gap: 20px;
+    }
+    .chart-box {
+      flex: 1 1 400px;
+      max-width: 500px;
+    }
+    @media (max-width: 900px) {
+      .chart-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .chart-box {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Simulare Vizuală: Forță Centrifugă & Eficiență Sortare</h2>
+  <div id="controls">
+    <!-- Controale pentru parametrii RPM -->
+    <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;">
+      <label for="rpmMin">RPM Min:</label>
+      <input type="number" id="rpmMin" min="100" max="10000" step="100" value="500" style="width: 80px;">
+      
+      <label for="rpmMax">RPM Max:</label>
+      <input type="number" id="rpmMax" min="100" max="10000" step="100" value="3000" style="width: 80px;">
+      
+      <label for="rpmStep">Pas:</label>
+      <input type="number" id="rpmStep" min="1" max="500" step="1" value="100" style="width: 60px;">
+      
+      <button onclick="updateRpmSlider()" style="padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Aplică</button>
+      
+      <button onclick="resetSimulation()" style="padding: 5px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">🔄 Reset Simulare</button>
+    </div>
+    
+    <!-- Slider-ul RPM -->
+    <div>
+      <label for="rpm">Turație (RPM): </label>
+      <input type="range" id="rpm" min="500" max="3000" step="100" value="1500">
+      <span id="rpmValue">1500</span> RPM
+    </div>
+  </div>
+  
+  <!-- Secțiunea pentru selectarea materialelor -->
+  <div class="materials-section">
+    <h3>Selectează Materialele pentru Simulare</h3>
+    
+    <h4>Materiale Suplimentare:</h4>
+    <div class="materials-grid" id="additionalMaterials">
+      <!-- Materialele suplimentare vor fi generate din JavaScript -->
+    </div>
+    
+    <h4>Adaugă Material Personalizat:</h4>
+    <div class="add-material-form">
+      <div class="form-row">
+        <label>Nume:</label>
+        <input type="text" id="customName" placeholder="ex: Zinc">
+        <label>Densitate (g/cm³):</label>
+        <input type="number" id="customDensity" step="0.01" placeholder="ex: 7.14">
+        <label>Culoare:</label>
+        <input type="color" id="customColor" value="#ff6600">
+        <div class="color-preview" id="colorPreview" style="background: #ff6600;"></div>
+        <button onclick="addCustomMaterial()">Adaugă</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="simCanvas" width="1000" height="400"></canvas>
+  <div class="legend" id="legend">
+    <!-- Legenda va fi generată dinamic -->
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-box">
+      <canvas id="barChart" height="300"></canvas>
+    </div>
+    <div class="chart-box">
+      <canvas id="fcChart" height="300"></canvas>
+    </div>
+  </div>
+
+  <footer>
+    Simularea afișează distribuția radială a particulelor în funcție de forța centrifugă calculată și eficiența sortării față de materialul steril.<br>
+    Valorile sunt actualizate dinamic pe baza turației selectate.
+  </footer>
+
+  <script>
+const canvas = document.getElementById("simCanvas");
+const ctx = canvas.getContext("2d");
+const rpmInput = document.getElementById("rpm");
+const rpmValue = document.getElementById("rpmValue");
+
+const r_tambur = 0.4;
+const densSteril = 2.7;
+
+// Toate materialele disponibile (inclusiv cele default)
+const toateMaterialele = [
+  { nume: 'Aur', dens: 19.3, culoare: 'gold', default: true },
+  { nume: 'Bronz', dens: 8.7, culoare: 'brown', default: true },
+  { nume: 'Cupru', dens: 8.96, culoare: 'blue', default: true },
+  { nume: 'Platină', dens: 21.45, culoare: 'darkslategray', default: true },
+  { nume: 'Argint', dens: 10.49, culoare: 'silver', default: true },
+  { nume: 'Steril', dens: densSteril, culoare: 'gray', default: true },
+  { nume: 'Aluminiu', dens: 2.7, culoare: 'lightblue', default: false },
+  { nume: 'Fier', dens: 7.87, culoare: 'darkred', default: false },
+  { nume: 'Zinc', dens: 7.14, culoare: 'lightgray', default: false },
+  { nume: 'Plumb', dens: 11.34, culoare: 'darkgray', default: false },
+  { nume: 'Titan', dens: 4.51, culoare: 'purple', default: false },
+  { nume: 'Nichel', dens: 8.91, culoare: 'lightgreen', default: false },
+  { nume: 'Tungsten', dens: 19.25, culoare: 'black', default: false },
+  { nume: 'Magneziu', dens: 1.74, culoare: 'lightcoral', default: false }
+];
+
+// Materiale personalizate adăugate de utilizator
+let materialePersonalizate = [];
+
+let particule = [];
+const diametru = 50;
+const razaParticula = diametru / 2 / 1e6;
+let chart, fcChart;
+
+// Funcție pentru a obține lista curentă de materiale active
+function getMaterialeActive() {
+  const active = [];
+  
+  // Adaugă materialele selectate din lista principală
+  toateMaterialele.forEach(mat => {
+    const checkbox = document.getElementById(`mat_${mat.nume}`);
+    if (checkbox && checkbox.checked) {
+      active.push(mat);
+    }
+  });
+  
+  // Adaugă materialele personalizate
+  active.push(...materialePersonalizate);
+  
+  return active;
+}
+
+// Generează checkbox-urile pentru toate materialele
+function generateAdditionalMaterials() {
+  const container = document.getElementById('additionalMaterials');
+  container.innerHTML = '';
+  
+  toateMaterialele.forEach(mat => {
+    const div = document.createElement('div');
+    div.className = 'material-item';
+    div.innerHTML = `
+      <input type="checkbox" id="mat_${mat.nume}" ${mat.default ? 'checked' : ''} onchange="updateSimulation()">
+      <div class="color-preview" style="background: ${mat.culoare};"></div>
+      <label for="mat_${mat.nume}">${mat.nume} (${mat.dens} g/cm³)</label>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Adaugă material personalizat
+function addCustomMaterial() {
+  const nume = document.getElementById('customName').value.trim();
+  const densitate = parseFloat(document.getElementById('customDensity').value);
+  const culoare = document.getElementById('customColor').value;
+  
+  if (!nume || !densitate) {
+    alert('Te rog completează numele și densitatea materialului!');
+    return;
+  }
+  
+  // Verifică dacă materialul există deja
+  const materialeActive = getMaterialeActive();
+  if (materialeActive.some(m => m.nume.toLowerCase() === nume.toLowerCase()) || 
+      toateMaterialele.some(m => m.nume.toLowerCase() === nume.toLowerCase())) {
+    alert('Un material cu acest nume există deja!');
+    return;
+  }
+  
+  // Adaugă materialul personalizat
+  materialePersonalizate.push({
+    nume: nume,
+    dens: densitate,
+    culoare: culoare,
+    personalizat: true
+  });
+  
+  // Resetează formularul
+  document.getElementById('customName').value = '';
+  document.getElementById('customDensity').value = '';
+  
+  // Actualizează simularea
+  updateSimulation();
+  updateLegend();
+}
+
+// Actualizează legenda
+function updateLegend() {
+  const legend = document.getElementById('legend');
+  const materialeActive = getMaterialeActive();
+  
+  legend.innerHTML = '';
+  materialeActive.forEach(mat => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <span class="box" style="background: ${mat.culoare}"></span> 
+      ${mat.nume}
+      ${mat.personalizat ? '<button onclick="removeMaterial(\'' + mat.nume + '\')" style="margin-left: 5px; font-size: 10px;">✕</button>' : ''}
+    `;
+    legend.appendChild(div);
+  });
+}
+
+// Elimină material personalizat
+function removeMaterial(nume) {
+  materialePersonalizate = materialePersonalizate.filter(m => m.nume !== nume);
+  updateSimulation();
+  updateLegend();
+}
+
+// Actualizează simularea când se schimbă selecția
+function updateSimulation() {
+  const rpm = parseInt(rpmInput.value);
+  resetParticule(rpm);
+}
+
+// Actualizează preview-ul culorii
+document.getElementById('customColor').addEventListener('input', function() {
+  document.getElementById('colorPreview').style.background = this.value;
+});
+
+function calculeazaFc(densitate, omega) {
+  const volum = (4/3) * Math.PI * Math.pow(razaParticula, 3);
+  const masa = volum * densitate * 1000;
+  return masa * omega * omega * r_tambur;
+}
+
+function updateChart(labels, efic, fcValues) {
+  const ctx1 = document.getElementById('barChart').getContext('2d');
+  const ctx2 = document.getElementById('fcChart').getContext('2d');
+  if (chart) chart.destroy();
+  if (fcChart) fcChart.destroy();
+  
+  const materialeActive = getMaterialeActive();
+  
+  chart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Eficiență Sortare (%)',
+        data: efic,
+        backgroundColor: labels.map(name => materialeActive.find(m => m.nume === name).culoare)
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+  fcChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Forță Centrifugă (N)',
+        data: fcValues,
+        backgroundColor: labels.map(name => materialeActive.find(m => m.nume === name).culoare)
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function resetParticule(rpm) {
+  particule = [];
+  const omega = 2 * Math.PI * rpm / 60;
+  const fcSteril = calculeazaFc(densSteril, omega);
+  const labels = [], efic = [], fcValues = [];
+  
+  const materialeActive = getMaterialeActive();
+
+  materialeActive.forEach((mat, i) => {
+    const fc = calculeazaFc(mat.dens, omega);
+    const eficienta = mat.nume === 'Steril' ? 0 : ((1 - fcSteril / fc) * 100).toFixed(2);
+    particule.push({
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      raza: 7,
+      culoare: mat.culoare,
+      vx: Math.cos(i) * fc * 10000,
+      vy: Math.sin(i) * fc * 10000,
+      fc: fc.toExponential(2),
+      eficienta: mat.nume === 'Steril' ? '-' : `${eficienta}%`,
+      labelX: canvas.width / 2,
+      labelY: canvas.height / 2
+    });
+    if (mat.nume !== 'Steril') {
+      labels.push(mat.nume);
+      efic.push(parseFloat(eficienta));
+      fcValues.push(fc);
+    }
+  });
+
+  updateChart(labels, efic, fcValues);
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particule.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.labelX = p.x + 10;
+    p.labelY = p.y;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.raza, 0, 2 * Math.PI);
+    ctx.fillStyle = p.culoare;
+    ctx.fill();
+    ctx.fillStyle = "#222";
+    ctx.font = "12px 'Segoe UI', sans-serif";
+    ctx.fillText(`Fc: ${p.fc}`, p.labelX, p.labelY);
+    if (p.eficienta !== '-') ctx.fillText(`Eff: ${p.eficienta}`, p.labelX, p.labelY + 14);
+  });
+  requestAnimationFrame(animate);
+}
+
+rpmInput.addEventListener("input", () => {
+  const rpm = parseInt(rpmInput.value);
+  rpmValue.textContent = rpm;
+  resetParticule(rpm);
+});
+
+// Funcție pentru actualizarea parametrilor slider-ului RPM
+function updateRpmSlider() {
+  const rpmMin = parseInt(document.getElementById('rpmMin').value);
+  const rpmMax = parseInt(document.getElementById('rpmMax').value);
+  const rpmStep = parseInt(document.getElementById('rpmStep').value);
+  const rpmSlider = document.getElementById('rpm');
+  
+  // Validare
+  if (rpmMin >= rpmMax) {
+    alert('RPM minim trebuie să fie mai mic decât RPM maxim!');
+    return;
+  }
+  
+  if (rpmStep <= 0) {
+    alert('Pasul trebuie să fie mai mare decât 0!');
+    return;
+  }
+  
+  // Actualizează atributele slider-ului
+  rpmSlider.min = rpmMin;
+  rpmSlider.max = rpmMax;
+  rpmSlider.step = rpmStep;
+  
+  // Ajustează valoarea curentă dacă este în afara noilor limite
+  const currentValue = parseInt(rpmSlider.value);
+  if (currentValue < rpmMin) {
+    rpmSlider.value = rpmMin;
+    rpmValue.textContent = rpmMin;
+    resetParticule(rpmMin);
+  } else if (currentValue > rpmMax) {
+    rpmSlider.value = rpmMax;
+    rpmValue.textContent = rpmMax;
+    resetParticule(rpmMax);
+  }
+}
+
+// Funcție pentru resetarea completă a simulării
+function resetSimulation() {
+  // Resetează parametrii RPM la valorile default
+  document.getElementById('rpmMin').value = 500;
+  document.getElementById('rpmMax').value = 3000;
+  document.getElementById('rpmStep').value = 100;
+  
+  // Resetează slider-ul RPM
+  const rpmSlider = document.getElementById('rpm');
+  rpmSlider.min = 500;
+  rpmSlider.max = 3000;
+  rpmSlider.step = 100;
+  rpmSlider.value = 1500;
+  rpmValue.textContent = 1500;
+  
+  // Resetează selecția materialelor la valorile default
+  toateMaterialele.forEach(mat => {
+    const checkbox = document.getElementById(`mat_${mat.nume}`);
+    if (checkbox) {
+      checkbox.checked = mat.default;
+    }
+  });
+  
+  // Șterge materialele personalizate
+  materialePersonalizate = [];
+  
+  // Resetează formularul pentru material personalizat
+  document.getElementById('customName').value = '';
+  document.getElementById('customDensity').value = '';
+  document.getElementById('customColor').value = '#ff6600';
+  document.getElementById('colorPreview').style.background = '#ff6600';
+  
+  // Actualizează legenda
+  updateLegend();
+  
+  // Resetează și reîncepe simularea cu vitezele calculate corect
+  resetParticule(1500);
+  
+  console.log('Simularea a fost resetată și repornită la valorile default');
+}
+
+// Inițializare
+generateAdditionalMaterials();
+updateLegend();
+resetParticule(parseInt(rpmInput.value));
+animate();
+</script>
+</body>
+</html>
