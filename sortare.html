@@ -9,37 +9,188 @@
       font-family: 'Segoe UI', sans-serif;
       background: #f4f6f9;
       margin: 0;
-      padding: 30px;
-      text-align: center;
-    }
-    h2 {
-      margin-bottom: 10px;
-      color: #333;
-    }
-    #controls {
-      margin-top: 20px;
-      font-size: 16px;
-    }
-    #rpm {
-      width: 300px;
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
     }
     
-    /* Stiluri pentru secțiunea de materiale */
-    .materials-section {
-      margin: 30px auto;
-      max-width: 1000px;
+    .sidebar {
+      width: 350px;
       background: white;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-right: 1px solid #ddd;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      z-index: 1000;
+    }
+    
+    .main-content {
+      margin-left: 350px;
+      padding: 20px;
+      flex: 1;
+      text-align: center;
+    }
+    
+    .sidebar h3 {
+      margin-bottom: 20px;
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+    
+    .control-group {
+      margin-bottom: 25px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .control-group h4 {
+      margin: 0 0 15px 0;
+      color: #495057;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .rpm-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .rpm-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .rpm-row label {
+      min-width: 70px;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .rpm-row input {
+      flex: 1;
+      min-width: 60px;
+    }
+    
+    .sidebar input[type="range"] {
+      width: 100%;
+      margin: 10px 0;
+    }
+    
+    .sidebar input[type="number"] {
+      padding: 5px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .sidebar button {
+      padding: 8px 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin: 5px 0;
+    }
+    
+    .sidebar button:hover {
+      background: #0056b3;
+    }
+    
+    .sidebar button.reset {
+      background: #28a745;
+    }
+    
+    .sidebar button.reset:hover {
+      background: #1e7e34;
+    }
+    
+    @media (max-width: 1200px) {
+      .sidebar {
+        width: 300px;
+      }
+      .main-content {
+        margin-left: 300px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -350px;
+        transition: left 0.3s ease;
+        z-index: 1001;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 10px;
+      }
+      .mobile-menu-btn {
+        display: block;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1002;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    }
+    
+    .mobile-menu-btn {
+      display: none;
+    }
+    
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    
+    .overlay.show {
+      display: block;
+    }
+    
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    /* Stiluri pentru secțiunea de materiale în sidebar */
+    .materials-section {
+      margin: 0;
+      max-width: none;
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
       text-align: left;
     }
     
     .materials-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 10px 0;
     }
     
     .material-item {
@@ -49,46 +200,40 @@
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 5px;
-      background: #f9f9f9;
+      background: white;
+      font-size: 12px;
     }
     
     .material-item input[type="checkbox"] {
-      transform: scale(1.2);
+      transform: scale(1.1);
     }
     
     .add-material-form {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f0f8ff;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      margin-top: 15px;
+      padding: 10px;
+      background: #e3f2fd;
+      border-radius: 6px;
+      border: 1px solid #bbdefb;
     }
     
     .form-row {
       display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
     }
     
     .form-row input {
-      padding: 5px 10px;
+      padding: 5px 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
+      font-size: 12px;
     }
     
-    .form-row button {
-      padding: 6px 15px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    
-    .form-row button:hover {
-      background: #0056b3;
+    .form-row label {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 2px;
     }
     
     .color-preview {
@@ -97,7 +242,10 @@
       border-radius: 3px;
       border: 1px solid #ccc;
       display: inline-block;
+      align-self: center;
     }
+    
+
     
     canvas#simCanvas {
       background: white;
@@ -157,76 +305,109 @@
   </style>
 </head>
 <body>
-  <h2>Simulare Vizuală: Forță Centrifugă & Eficiență Sortare</h2>
-  <div id="controls">
-    <!-- Controale pentru parametrii RPM -->
-    <div style="margin-bottom: 15px; display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;">
-      <label for="rpmMin">RPM Min:</label>
-      <input type="number" id="rpmMin" min="100" max="10000" step="100" value="500" style="width: 80px;">
-      
-      <label for="rpmMax">RPM Max:</label>
-      <input type="number" id="rpmMax" min="100" max="10000" step="100" value="3000" style="width: 80px;">
-      
-      <label for="rpmStep">Pas:</label>
-      <input type="number" id="rpmStep" min="1" max="500" step="1" value="100" style="width: 60px;">
-      
-      <button onclick="updateRpmSlider()" style="padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Aplică</button>
-      
-      <button onclick="resetSimulation()" style="padding: 5px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">🔄 Reset Simulare</button>
-    </div>
-    
-    <!-- Slider-ul RPM -->
-    <div>
-      <label for="rpm">Turație (RPM): </label>
-      <input type="range" id="rpm" min="500" max="3000" step="100" value="1500">
-      <span id="rpmValue">1500</span> RPM
-    </div>
-  </div>
+  <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ Meniu</button>
+  <div class="overlay" onclick="closeSidebar()"></div>
   
-  <!-- Secțiunea pentru selectarea materialelor -->
-  <div class="materials-section">
-    <h3>Selectează Materialele pentru Simulare</h3>
+  <div class="sidebar" id="sidebar">
+    <h3>🔧 Controale Simulare</h3>
     
-    <h4>Materiale Suplimentare:</h4>
-    <div class="materials-grid" id="additionalMaterials">
-      <!-- Materialele suplimentare vor fi generate din JavaScript -->
+    <div class="control-group">
+      <h4>Parametri RPM</h4>
+      <div class="rpm-controls">
+        <div class="rpm-row">
+          <label for="rpmMin">Min:</label>
+          <input type="number" id="rpmMin" min="100" max="10000" step="100" value="500">
+        </div>
+        <div class="rpm-row">
+          <label for="rpmMax">Max:</label>
+          <input type="number" id="rpmMax" min="100" max="10000" step="100" value="3000">
+        </div>
+        <div class="rpm-row">
+          <label for="rpmStep">Pas:</label>
+          <input type="number" id="rpmStep" min="1" max="500" step="1" value="100">
+        </div>
+        <button onclick="updateRpmSlider()">Aplică Setări</button>
+      </div>
     </div>
     
-    <h4>Adaugă Material Personalizat:</h4>
-    <div class="add-material-form">
-      <div class="form-row">
-        <label>Nume:</label>
-        <input type="text" id="customName" placeholder="ex: Zinc">
-        <label>Densitate (g/cm³):</label>
-        <input type="number" id="customDensity" step="0.01" placeholder="ex: 7.14">
-        <label>Culoare:</label>
-        <input type="color" id="customColor" value="#ff6600">
-        <div class="color-preview" id="colorPreview" style="background: #ff6600;"></div>
-        <button onclick="addCustomMaterial()">Adaugă</button>
+    <div class="control-group">
+      <h4>Turație Curentă</h4>
+      <label for="rpm">RPM: <span id="rpmValue">1500</span></label>
+      <input type="range" id="rpm" min="500" max="3000" step="100" value="1500">
+    </div>
+    
+    <div class="control-group">
+      <button onclick="resetSimulation()" class="reset">🔄 Reset Simulare</button>
+    </div>
+    
+    <!-- Secțiunea pentru selectarea materialelor -->
+    <div class="materials-section">
+      <div class="control-group">
+        <h4>Materiale Disponibile</h4>
+        <div class="materials-grid" id="additionalMaterials">
+          <!-- Materialele suplimentare vor fi generate din JavaScript -->
+        </div>
+      </div>
+      
+      <div class="control-group">
+        <h4>Adaugă Material Nou</h4>
+        <div class="add-material-form">
+          <div class="form-row">
+            <label>Nume material:</label>
+            <input type="text" id="customName" placeholder="ex: Zinc">
+            <label>Densitate (g/cm³):</label>
+            <input type="number" id="customDensity" step="0.01" placeholder="ex: 7.14">
+            <label>Culoare:</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="color" id="customColor" value="#ff6600">
+              <div class="color-preview" id="colorPreview" style="background: #ff6600;"></div>
+            </div>
+            <button onclick="addCustomMaterial()">Adaugă Material</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <canvas id="simCanvas" width="1000" height="400"></canvas>
-  <div class="legend" id="legend">
-    <!-- Legenda va fi generată dinamic -->
-  </div>
-
-  <div class="chart-container">
-    <div class="chart-box">
-      <canvas id="barChart" height="300"></canvas>
+  
+  <div class="main-content">
+    <h2>Simulare Vizuală: Forță Centrifugă & Eficiență Sortare</h2>
+    
+    <canvas id="simCanvas" width="1000" height="400"></canvas>
+    <div class="legend" id="legend">
+      <!-- Legenda va fi generată dinamic -->
     </div>
-    <div class="chart-box">
-      <canvas id="fcChart" height="300"></canvas>
-    </div>
-  </div>
 
-  <footer>
-    Simularea afișează distribuția radială a particulelor în funcție de forța centrifugă calculată și eficiența sortării față de materialul steril.<br>
-    Valorile sunt actualizate dinamic pe baza turației selectate.
-  </footer>
+    <div class="chart-container">
+      <div class="chart-box">
+        <canvas id="barChart" height="300"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="fcChart" height="300"></canvas>
+      </div>
+    </div>
+
+    <footer>
+      Simularea afișează distribuția radială a particulelor în funcție de forța centrifugă calculată și eficiența sortării față de materialul steril.<br>
+      Valorile sunt actualizate dinamic pe baza turației selectate.
+    </footer>
+  </div>
 
   <script>
+// Funcții pentru meniul mobil
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.querySelector('.overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.querySelector('.overlay');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+}
+
 const canvas = document.getElementById("simCanvas");
 const ctx = canvas.getContext("2d");
 const rpmInput = document.getElementById("rpm");
@@ -249,8 +430,7 @@ const toateMaterialele = [
   { nume: 'Plumb', dens: 11.34, culoare: 'darkgray', default: false },
   { nume: 'Titan', dens: 4.51, culoare: 'purple', default: false },
   { nume: 'Nichel', dens: 8.91, culoare: 'lightgreen', default: false },
-  { nume: 'Tungsten', dens: 19.25, culoare: 'black', default: false },
-  { nume: 'Magneziu', dens: 1.74, culoare: 'lightcoral', default: false }
+  { nume: 'Tungsten', dens: 19.25, culoare: 'black', default: false }
 ];
 
 // Materiale personalizate adăugate de utilizator
@@ -442,6 +622,7 @@ function resetParticule(rpm) {
       vy: Math.sin(i) * fc * 10000,
       fc: fc.toExponential(2),
       eficienta: mat.nume === 'Steril' ? '-' : `${eficienta}%`,
+      nume: mat.nume,
       labelX: canvas.width / 2,
       labelY: canvas.height / 2
     });
@@ -460,16 +641,38 @@ function animate() {
   particule.forEach(p => {
     p.x += p.vx;
     p.y += p.vy;
-    p.labelX = p.x + 10;
-    p.labelY = p.y;
+    
+    // Limitează particulele la marginile canvas-ului
+    if (p.x <= p.raza) {
+      p.x = p.raza;
+      p.vx = Math.abs(p.vx) * 0.1; // Reduce viteza și schimbă direcția
+    }
+    if (p.x >= canvas.width - p.raza) {
+      p.x = canvas.width - p.raza;
+      p.vx = -Math.abs(p.vx) * 0.1;
+    }
+    if (p.y <= p.raza) {
+      p.y = p.raza;
+      p.vy = Math.abs(p.vy) * 0.1;
+    }
+    if (p.y >= canvas.height - p.raza) {
+      p.y = canvas.height - p.raza;
+      p.vy = -Math.abs(p.vy) * 0.1;
+    }
+    
+    // Poziționează labelurile pentru a fi vizibile
+    p.labelX = Math.min(p.x + 10, canvas.width - 140);
+    p.labelY = Math.min(Math.max(p.y, 20), canvas.height - 40);
+    
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.raza, 0, 2 * Math.PI);
     ctx.fillStyle = p.culoare;
     ctx.fill();
     ctx.fillStyle = "#222";
     ctx.font = "12px 'Segoe UI', sans-serif";
-    ctx.fillText(`Fc: ${p.fc}`, p.labelX, p.labelY);
-    if (p.eficienta !== '-') ctx.fillText(`Eff: ${p.eficienta}`, p.labelX, p.labelY + 14);
+    ctx.fillText(`${p.nume}`, p.labelX, p.labelY - 2);
+    ctx.fillText(`Fc: ${p.fc}`, p.labelX, p.labelY + 12);
+    if (p.eficienta !== '-') ctx.fillText(`Eff: ${p.eficienta}`, p.labelX, p.labelY + 26);
   });
   requestAnimationFrame(animate);
 }
